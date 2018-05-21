@@ -1,6 +1,6 @@
 package com.warrior.service;
 
-import com.warrior.entity.Student;
+import com.warrior.entity.Server;
 import com.baomidou.mybatisplus.service.IService;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.service.IService;
  * </p>
  *
  * @author lqh
- * @since 2018-05-05
+ * @since 2018-05-16
  */
-public interface IStudentService extends IService<Student> {
+public interface IServerService extends IService<Server> {
 	
 }

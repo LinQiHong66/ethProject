@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.warrior.mapper.AccountMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.warrior.entity.Account">
+		<id column="id" property="id" />
+		<result column="serverId" property="serverId" />
+		<result column="user" property="user" />
+		<result column="pwd" property="pwd" />
+		<result column="accountPwd" property="accountPwd" />
+		<result column="address" property="address" />
+		<result column="balance" property="balance" />
+	</resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, serverId, user, pwd, accountPwd, address, balance
+    </sql>
+
+</mapper>

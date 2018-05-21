@@ -1,6 +1,6 @@
 package com.warrior.mapper;
 
-import com.warrior.entity.Student;
+import com.warrior.entity.Server;
 import com.baomidou.mybatisplus.mapper.BaseMapper;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.mapper.BaseMapper;
  * </p>
  *
  * @author lqh
- * @since 2018-05-05
+ * @since 2018-05-16
  */
-public interface StudentMapper extends BaseMapper<Student> {
+public interface ServerMapper extends BaseMapper<Server> {
 
 }

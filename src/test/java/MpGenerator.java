@@ -63,8 +63,8 @@ public class MpGenerator {
         });
         dsc.setDriverName("com.mysql.jdbc.Driver");
         dsc.setUsername("root");
-        dsc.setPassword("123456");
-        dsc.setUrl("jdbc:mysql://127.0.0.1:3306/eth?characterEncoding=utf8");
+        dsc.setPassword("dbmaster123456@*@");
+        dsc.setUrl("jdbc:mysql://47.92.135.12:3306/eth?characterEncoding=utf8");
         mpg.setDataSource(dsc);
 
         // 策略配置
