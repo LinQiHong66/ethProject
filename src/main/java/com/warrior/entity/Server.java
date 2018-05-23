@@ -30,7 +30,7 @@ public class Server extends Model<Server> {
      */
 	private Integer port;
     /**
-     * -1：eth链接不通，0：没有密码，其他：密码具体值
+     * 0:telnet不通，1telnet通，2 EthApi通
      */
 	private Integer pwd;
 
