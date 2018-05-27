@@ -15,9 +15,9 @@ import java.util.List;
  **/
 public class GetServerIp {
 
-    final static EthcoinAPI eth = new EthcoinAPI("", "", "52.0.75.110", "8545", "");
+    //final static EthcoinAPI eth = new EthcoinAPI("", "", "52.0.75.110", "8545", "");
 
-
+    final static EthcoinAPI eth = new EthcoinAPI("193.112.77.111", "8545", "", "0", "1");
     public static void main(String[] args) {
         long start = System.currentTimeMillis();
         int a = 256;
@@ -79,5 +79,11 @@ public class GetServerIp {
         System.out.println("eth_syncing:" + eth_syncing);
     }
 
+
+    @Test
+    public void xx(){
+      String address = eth.newAccount("1");
+        System.out.println("address:"+address);
+    }
 
 }
