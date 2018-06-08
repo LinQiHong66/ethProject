@@ -15,9 +15,8 @@ import java.util.List;
  **/
 public class GetServerIp {
 
-    //final static EthcoinAPI eth = new EthcoinAPI("", "", "52.0.75.110", "8545", "");
+    final static EthcoinAPI eth = new EthcoinAPI("", "", "47.75.9.16", "8545", "");
 
-    final static EthcoinAPI eth = new EthcoinAPI("193.112.77.111", "8545", "", "0", "1");
     public static void main(String[] args) {
         long start = System.currentTimeMillis();
         int a = 256;
@@ -55,7 +54,7 @@ public class GetServerIp {
 
     @Test
     public void getBalance() {
-        BigDecimal balance = eth.getBalance("0xfd502a8e20cb597a3b20e376ed94aa7abfa631ab");
+        BigDecimal balance = eth.getBalance("0x2a32383edbb62564e46a39706c7181638e20d989");
         System.out.println("balance:" + balance.divide(EthcoinAPI.WEI));
     }
 
@@ -69,7 +68,7 @@ public class GetServerIp {
 
     @Test
     public void blockNumber() {
-        String blockNumber = eth.eth_blockNumber();
+        BigDecimal blockNumber = eth.eth_blockNumber();
         System.out.println("blockNumber:" + blockNumber);
     }
 
@@ -81,9 +80,18 @@ public class GetServerIp {
 
 
     @Test
-    public void xx(){
-      String address = eth.newAccount("1");
-        System.out.println("address:"+address);
+    public void transfer() {
+        String address = "0x2a32383edbb62564e46a39706c7181638e20d989";
+        if (eth.unlockAccount(address, "123456789")) {
+            System.out.println("unlock success");
+        } else {
+            System.out.println("unlock fail");
+        }
     }
 
+    @Test
+    public void unit() {
+        String balance = EthcoinAPI.unit10To16(new BigDecimal(1));
+        System.out.println("balance:" + balance);
+    }
 }

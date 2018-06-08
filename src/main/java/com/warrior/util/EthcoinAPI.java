@@ -350,9 +350,13 @@ public class EthcoinAPI {
         return gas.multiply(gasPrice);
     }
 
-    public String eth_blockNumber() {
+    public BigDecimal eth_blockNumber() {
+        BigDecimal bigDecimal = BigDecimal.ZERO;
         String res = generateRequest("eth_blockNumber");
-        return res;
+        if (!res.equals("")) {
+            bigDecimal = EthcoinAPI.unit16To10(res);
+        }
+        return bigDecimal;
     }
 
     public String eth_syncing() {
