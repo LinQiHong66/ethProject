@@ -364,4 +364,25 @@ public class EthcoinAPI {
         return res;
     }
 
+    public String eth_getBlockByNumber(Integer blockHeight) {
+        String bigInteger = "0x" + new BigInteger(blockHeight.toString(), 10).toString(16);
+        String res = generateRequest("eth_getBlockByNumber", bigInteger, false);
+        return res;
+    }
+
+    //是否为公链
+    public Boolean isPublicChain() {
+        try {
+            String res = generateRequest("eth_getBlockByNumber", "earliest", false);
+            Map resultMap = JSON.parseObject(res, Map.class);
+            String hash = resultMap.get("hash").toString();
+            if (hash.equalsIgnoreCase("0xd4e56740f876aef8c010b86a40d5f56745a118d0906a34e69aec8c0db1cb8fa3")) {
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }

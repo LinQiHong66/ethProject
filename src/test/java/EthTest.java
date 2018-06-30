@@ -13,7 +13,7 @@ import java.util.List;
  * @program: ETH
  * @create: 2018-05-05 17:43
  **/
-public class GetServerIp {
+public class EthTest {
 
     final static EthcoinAPI eth = new EthcoinAPI("", "", "47.75.9.16", "8545", "");
 
@@ -93,5 +93,13 @@ public class GetServerIp {
     public void unit() {
         String balance = EthcoinAPI.unit10To16(new BigDecimal(1));
         System.out.println("balance:" + balance);
+    }
+
+    @Test
+    public void getBlockInfo() {
+        long t1 = System.currentTimeMillis();
+        System.out.println(eth.isPublicChain());
+        long t2 = System.currentTimeMillis();
+        System.out.println("time:"+(t2-t1));
     }
 }
