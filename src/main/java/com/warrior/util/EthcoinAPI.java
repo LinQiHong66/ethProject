@@ -110,15 +110,15 @@ public class EthcoinAPI {
     private String generateRequest(String method, Object... param) {
 
         String requestBody = new String(this.prepareRequest(method, param));
-        System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< requestBody： " + requestBody);
-        if (method.equals("dumpprivkey"))
+       // System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< requestBody： " + requestBody);
+/*        if (method.equals("dumpprivkey"))
             logger.info("dumpprivkey so no logging");
         else if (method.equals("getblock"))
             logger.info("It's to long to log an entire block");
         else if (method.equals("walletpassphrasechange"))
             logger.info("walletpassphrasechange so no logging");
         else
-            logger.info("请求参数：" + requestBody);
+            logger.info("请求参数：" + requestBody);*/
 
         final PasswordAuthentication temp = new PasswordAuthentication(this.rpcuser, this.rpcpassword.toCharArray());
         Authenticator.setDefault(new Authenticator() {
@@ -127,7 +127,7 @@ public class EthcoinAPI {
             }
         });
         String uri = "http://" + this.rpcurl + ":" + this.rpcport;
-        logger.info("请求url:---------" + uri);
+        //logger.info("请求url:---------" + uri);
 
         String contentType = "application/json";
         HttpURLConnection connection = null;
@@ -149,7 +149,7 @@ public class EthcoinAPI {
         } catch (Exception ioE) {
             connection.disconnect();
             // ioE.printStackTrace();
-            logger.info("connection error");
+            //logger.info("connection error");
         }
 
         try {
@@ -165,34 +165,34 @@ public class EthcoinAPI {
                 rd.close();
 
                 String responseToString = response.toString();
-                logger.info("responseToString：" + responseToString);
+                //logger.info("responseToString：" + responseToString);
                 try {
                     JSONObject jsonObject = JSON.parseObject(responseToString);
                     String returnAnswer = jsonObject.get("result").toString();
-                    logger.info("响应结果：" + returnAnswer);
-                    System.out.println("响应结果：" + returnAnswer);
+                    //logger.info("响应结果：" + returnAnswer);
+                    //System.out.println("响应结果：" + returnAnswer);
 
-                    if (method.equals("dumpprivkey"))
+/*                    if (method.equals("dumpprivkey"))
                         logger.info("dumpprivkey so no logging");
                     else if (method.equals("getblock"))
                         logger.info("It's to long to log an entire block");
                     else if (method.equals("walletpassphrasechange"))
                         logger.info("walletpassphrasechange so no logging");
                     else
-                        logger.info(returnAnswer);
+                        logger.info(returnAnswer);*/
 
                     return returnAnswer;
                 } catch (Exception e) {
                     return "";
                 }
             } else {
-                System.out.println("Coudln't connet to Bitcoind!");
-                logger.info("Coudln't connet to Bitcoind!");
+/*                System.out.println("Coudln't connet to Bitcoind!");
+                logger.info("Coudln't connet to Bitcoind!");*/
                 connection.disconnect();
             }
         } catch (Exception e) {
         }
-        logger.info("Couldn't get a decent answer");
+     //   logger.info("Couldn't get a decent answer");
         return "";
     }
 

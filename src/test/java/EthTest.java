@@ -15,7 +15,7 @@ import java.util.List;
  **/
 public class EthTest {
 
-    final static EthcoinAPI eth = new EthcoinAPI("", "", "47.75.9.16", "8545", "");
+    final static EthcoinAPI eth = new EthcoinAPI("", "", "39.106.148.124", "8545", "");
 
     public static void main(String[] args) {
         long start = System.currentTimeMillis();
@@ -54,7 +54,7 @@ public class EthTest {
 
     @Test
     public void getBalance() {
-        BigDecimal balance = eth.getBalance("0x2a32383edbb62564e46a39706c7181638e20d989");
+        BigDecimal balance = eth.getBalance("0x21ac34d477c245d3ad254b704ef9ae0a31ea1213");
         System.out.println("balance:" + balance.divide(EthcoinAPI.WEI));
     }
 
@@ -81,8 +81,8 @@ public class EthTest {
 
     @Test
     public void transfer() {
-        String address = "0x2a32383edbb62564e46a39706c7181638e20d989";
-        if (eth.unlockAccount(address, "123456789")) {
+        String address = "0x21ac34d477c245d3ad254b704ef9ae0a31ea1213";
+        if (eth.unlockAccount(address, "abcdef")) {
             System.out.println("unlock success");
         } else {
             System.out.println("unlock fail");
@@ -100,6 +100,33 @@ public class EthTest {
         long t1 = System.currentTimeMillis();
         System.out.println(eth.isPublicChain());
         long t2 = System.currentTimeMillis();
-        System.out.println("time:"+(t2-t1));
+        System.out.println("time:" + (t2 - t1));
+    }
+
+    @Test
+    public void hex() {/*
+        String bigInteger = new BigInteger("00e1f505", 16).toString(10);
+        System.out.println("res:"+bigInteger);*/
+
+        String hexstr = "00e1f505";
+        byte[] hexToBytes =  EthTest.hexToBytes(hexstr);
+        BigInteger bigInteger = new BigInteger(hexToBytes);
+        System.out.println(bigInteger);
+    }
+
+
+
+    public static byte[] hexToBytes(String value) {
+        if (value == null || value.length() == 0) {
+            return new byte[0];
+        }
+        if (value.length() % 2 == 1) {
+            throw new IllegalArgumentException();
+        }
+        byte[] result = new byte[value.length() / 2];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = (byte) Integer.parseInt(value.substring(i * 2, i * 2 + 2), 16);
+        }
+        return result;
     }
 }

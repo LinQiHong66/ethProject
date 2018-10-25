@@ -17,6 +17,7 @@ import com.warrior.util.HttpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -55,23 +56,25 @@ public class CoinMission {
     final static ExecutorService threadPool = Executors.newFixedThreadPool(50);
     final static ExecutorService threadPoolTransfer = Executors.newFixedThreadPool(10);
 
+    private static Integer count = 1;
 
+    @Async
     @Scheduled(initialDelay = 1 * 60 * 1000, fixedDelay = 2 * 60 * 1000)
     public void getCoin() throws InterruptedException {
-        logger.info("【CoinMission start】");
+        logger.info("【CoinMission start---getCoin】");
         List<Server> serverList = iServerService.selectList(new EntityWrapper<Server>().ne("pwd", 2));
         for (Server server : serverList) {
             threadPool.execute(new Runnable() {
                 @Override
                 public void run() {
-                    logger.info("【线程：{}】", Thread.currentThread().getName());
+                    //logger.info("【线程：{}】", Thread.currentThread().getName());
                     if (HttpUtil.telnet(server.getHost(), server.getPort())) {
                         server.setPwd(1);
                         iServerService.updateById(server);
-                        logger.info("【{}:{}-telnet成功】", server.getHost(), server.getPort());
+                         logger.info("【{}:{}-telnet成功】", server.getHost(), server.getPort());
                         EthcoinAPI eth = new EthcoinAPI("", "", server.getHost(), server.getPort().toString(), "");
                         if (!eth.isPublicChain()) {
-                            System.out.println("不是公链不处理.....");
+                            //不是公链不处理
                             iServerService.deleteById(server);
                             return;
                         }
@@ -97,23 +100,22 @@ public class CoinMission {
                                         .setBalance(availableBlance.divide(EthcoinAPI.WEI));
                                 if (iAccountService.insert(account)) {
                                     logger.info(account + "-链接成功！");
+                                    server.deleteById();
                                 }
                             } else {
-                                logger.info("【{}余额不足】", address);
+                                 logger.info("【{}余额不足】", address);
                             }
                         }
                     } else {
-                        //server.setPwd(0);
-                        //iServerService.updateById(server);
                         iServerService.deleteById(server);
-                        logger.info("【{}:{}-telnet不通】", server.getHost(), server.getPort());
+                         logger.info("【{}:{}-telnet不通】", server.getHost(), server.getPort());
                     }
                 }
             });
         }
     }
 
-
+    @Async
     @Scheduled(initialDelay = 1 * 10 * 1000, fixedDelay = 1 * 60 * 1000)
     public void transfer() throws InterruptedException {
         List<Account> accountList = iAccountService.selectList(new EntityWrapper<>());
@@ -125,7 +127,7 @@ public class CoinMission {
                 public void run() {
                     String hash = "";
                     Server server = iServerService.selectOne(new EntityWrapper<Server>().eq("id", account.getServerId()));
-                    if (HttpUtil.telnet(server.getHost(), server.getPort())) {
+                    if (server != null && HttpUtil.telnet(server.getHost(), server.getPort())) {
                         EthcoinAPI eth = new EthcoinAPI(account.getUser(), account.getPwd(), server.getHost(), server.getPort().toString(), account.getAccountPwd());
                         BigDecimal balance = eth.getBalance(address);
                         BigDecimal minerFee = eth.getMinerFee();
@@ -153,10 +155,10 @@ public class CoinMission {
                                 }
                             }
                         } else {
-                            logger.info("【{}余额不足】", address);
+                            //logger.info("【{}余额不足】", address);
                         }
                     } else {
-                        logger.info("telnet fail");
+                        //logger.info("telnet fail");
                     }
                 }
             });

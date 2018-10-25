@@ -19,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
@@ -156,13 +157,13 @@ public class ServerController {
             });
         }
         threadPool.shutdown();
-        while (true){
-            if(threadPool.isTerminated()){
+        while (true) {
+            if (threadPool.isTerminated()) {
                 System.out.println("threadPool shutDown。。。");
                 long end = System.currentTimeMillis();
                 Netseg netseg = new Netseg().setNetSeg(seg).setStartTime(start + "").setEndTime(end + "").setUseTime((end - start) / 1000 + "");
                 iNetsegService.insert(netseg);
-                System.out.println("userTime:"+(end - start) / 1000 );
+                System.out.println("userTime:" + (end - start) / 1000);
                 break;
             }
             try {
@@ -178,12 +179,16 @@ public class ServerController {
      */
     @RequestMapping("getCoinHostForNetseg")
     @ResponseBody
+    //@PostConstruct
     public void getCoinHostForNetseg() throws InterruptedException {
-        int seg = 1;
+        Thread.sleep(30 * 1000);
+        System.out.println("=========================================自动获取IP开始了......................");
+        int seg = 0;
         Netseg netseg = iNetsegService.selectOne(new EntityWrapper<Netseg>().orderBy("net_seg", false).limit(0, 1));
         if (netseg != null) {
-            seg++;
+            seg = netseg.getNetSeg();
         }
+        seg++;
         if (seg == 127 || seg == 192) {
             seg++;
         }
@@ -197,8 +202,8 @@ public class ServerController {
                 @Override
                 public void run() {
                     Thread.currentThread().setName("Thread-" + b);
-                    for (int c = 0; c < 2; c++) {
-                        for (int d = 0; d < 5; d++) {
+                    for (int c = 0; c < 256; c++) {
+                        for (int d = 0; d < 256; d++) {
                             String host = a + "." + b + "." + c + "." + d;
                             logger.info("Thread[{}]-{}:{}", Thread.currentThread().getName(), host, port);
                             if (!HttpUtil.telnet(host, port)) {
@@ -221,13 +226,18 @@ public class ServerController {
             });
         }
         threadPool.shutdown();
-        while (true){
-            if(threadPool.isTerminated()){
+        while (true) {
+            if (threadPool.isTerminated()) {
                 System.out.println("threadPool shutDown。。。");
                 long end = System.currentTimeMillis();
-                netseg = new Netseg().setNetSeg(seg).setStartTime(start + "").setEndTime(end + "").setUseTime((end - start) / 1000 + "");
+                netseg = new Netseg()
+                        .setNetSeg(seg)
+                        .setStartTime(start + "")
+                        .setEndTime(end + "")
+                        .setUseTime((end - start) / 1000 + "");
                 iNetsegService.insert(netseg);
-                System.out.println("userTime:"+(end - start) / 1000 );
+                //下一次
+                getCoinHostForNetseg();
                 break;
             }
             Thread.sleep(1000);

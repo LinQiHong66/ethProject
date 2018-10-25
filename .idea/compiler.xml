@@ -11,6 +11,8 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="ethProject" target="1.8" />
+      <module name="feign-client" target="1.5" />
+      <module name="feign-service" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>
